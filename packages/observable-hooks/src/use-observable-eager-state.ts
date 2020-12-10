@@ -63,6 +63,10 @@ export function useObservableEagerState<TState>(
           // ignore synchronous value
           // prevent initial re-rendering
           setState(value)
+
+          if (value === state) {
+            forceUpdate()
+          }
         }
       },
       error: error => {

@@ -23,6 +23,10 @@ export function useObservableSuspense<TInput, TOutput extends TInput = TInput>(
     // Schedule states to prevent tearing.
     if (valueRef) {
       setState(valueRef.current)
+
+      if (valueRef.current === state) {
+        forceUpdate();
+      }
     } else {
       forceUpdate()
     }

@@ -95,6 +95,7 @@ export function useObservableState<TState, TInput = TState>(
   initialState?: TState | (() => TState)
 ): TState | undefined | [TState | undefined, (input: TInput) => void] {
   const [state, setState] = useState<TState | undefined>(initialState)
+  const forceUpdate = useForceUpdate()
 
   let callback: undefined | ((input: TInput) => void)
   let state$: Observable<TState>
@@ -113,7 +114,15 @@ export function useObservableState<TState, TInput = TState>(
     callback = useRef((state: TInput) => input$Ref.current.next(state)).current
   }
 
-  useSubscription(state$, setState)
+  const subscriber = useCallback((data: TState | undefined) => {
+    setState(data);
+
+    if (data === state) {
+      forceUpdate();
+    }
+  }, [state, forceUpdate]);
+
+  useSubscription(state$, subscriber)
 
   // Display state in React DevTools.
   useDebugValue(state)
